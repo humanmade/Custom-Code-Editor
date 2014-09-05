@@ -213,7 +213,7 @@ function enqueue_scripts( $args ) {
 		$script = wp_parse_args( $script, $defaults );
 
 		// Work out correct URL
-		$url = plugins_url( $script['path'], Designer\BASEFILE );
+		$url = plugins_url( $script['path'], CustomCodeEditor\BASEFILE );
 
 		wp_register_script( $handle, $url, $script['deps'], $script['version'], $script['in_footer'] );
 	}
@@ -241,7 +241,7 @@ function enqueue_scripts( $args ) {
 		),
 	);
 
-	wp_enqueue_script( 'cce-file-editor', plugins_url( 'assets/editor.js', Designer\BASEFILE ), $deps, '20140710', true );
+	wp_enqueue_script( 'cce-file-editor', plugins_url( 'assets/editor.js', CustomCodeEditor\BASEFILE ), $deps, '20140710', true );
 	wp_localize_script( 'cce-file-editor', 'cceFileEditor', $data );
 }
 
@@ -250,11 +250,11 @@ function enqueue_scripts( $args ) {
  */
 function enqueue_styles() {
 	$prefix = 'cce-file-editor-';
-	wp_enqueue_style( $prefix . 'cm', plugins_url( 'assets/codemirror/lib/codemirror.css', Designer\BASEFILE ), array(), '4.3' );
-	wp_enqueue_style( $prefix . 'cm-lint', plugins_url( 'assets/codemirror/addon/lint/lint.css', Designer\BASEFILE ), array(), '4.3' );
-	wp_enqueue_style( $prefix . 'cm-theme-monokai', plugins_url( 'assets/codemirror/theme/monokai.css', Designer\BASEFILE ), array(), '4.3' );
+	wp_enqueue_style( $prefix . 'cm', plugins_url( 'assets/codemirror/lib/codemirror.css', CustomCodeEditor\BASEFILE ), array(), '4.3' );
+	wp_enqueue_style( $prefix . 'cm-lint', plugins_url( 'assets/codemirror/addon/lint/lint.css', CustomCodeEditor\BASEFILE ), array(), '4.3' );
+	wp_enqueue_style( $prefix . 'cm-theme-monokai', plugins_url( 'assets/codemirror/theme/monokai.css', CustomCodeEditor\BASEFILE ), array(), '4.3' );
 
-	wp_enqueue_style( 'cce-file-editor', plugins_url( 'assets/editor.css', Designer\BASEFILE ), array(), '20140710' );
+	wp_enqueue_style( 'cce-file-editor', plugins_url( 'assets/editor.css', CustomCodeEditor\BASEFILE ), array(), '20140710' );
 }
 
 /**
