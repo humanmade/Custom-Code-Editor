@@ -1,0 +1,22 @@
+.post-type-cce_css #visibility,
+.post-type-cce_js #visibility {
+	display: none;
+}
+
+.type-cce_css .row-title,
+.type-cce_js .row-title {
+	font-family: Consolas, Monaco, monospace;
+
+	/* !important, because core uses it */
+	font-size: 12px !important;
+}
+
+.type-cce_css .cce-rev-count,
+.type-cce_js .cce-rev-count {
+	color: #888;
+}
+
+.post-type-cce_css .CodeMirror pre.CodeMirror-placeholder,
+.post-type-cce_js .CodeMirror pre.CodeMirror-placeholder {
+	color: #999;
+}
