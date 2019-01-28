@@ -30,8 +30,8 @@ const BASEFILE = __FILE__;
 
 spl_autoload_register( __NAMESPACE__ . '\\autoload' );
 
-require __DIR__ . '/editor.php';
-require __DIR__ . '/frontend.php';
+require __DIR__ . '/inc/editor.php';
+require __DIR__ . '/inc/frontend.php';
 
 add_action( 'init',                          __NAMESPACE__ . '\\register_post_types' );
 add_filter( 'cmb_field_types',               __NAMESPACE__ . '\\register_fields' );
