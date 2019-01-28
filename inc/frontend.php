@@ -7,6 +7,7 @@
 
 namespace CustomCodeEditor\Frontend;
 
+use CustomCodeEditor\Post_Types;
 use WP_Query;
 
 /**
@@ -32,7 +33,7 @@ function load() {
 function register_files() {
 	$query = new WP_Query();
 	$args  = [
-		'post_type'      => [ 'cce_css', 'cce_js' ],
+		'post_type'      => [ Post_Types\CSS_SLUG, Post_Types\JS_SLUG ],
 		'posts_per_page' => -1,
 	];
 	$files = $query->query( $args );
@@ -40,11 +41,11 @@ function register_files() {
 	// Register all files.
 	foreach ( $files as $file ) {
 		switch ( $file->post_type ) {
-			case 'cce_css':
+			case Post_Types\CSS_SLUG:
 				$handler = $GLOBALS['wp_styles'];
 				break;
 
-			case 'cce_js':
+			case Post_Types\JS_SLUG:
 				$handler = $GLOBALS['wp_scripts'];
 				break;
 		}
@@ -147,11 +148,11 @@ function handle_file_request() {
 	}
 
 	switch ( $file->post_type ) {
-		case 'cce_css':
+		case Post_Types\CSS_SLUG:
 			header( 'Content-Type: text/css; charset=UTF-8' );
 			break;
 
-		case 'cce_js':
+		case Post_Types\JS_SLUG:
 			header( 'Content-Type: application/javascript; charset=UTF-8' );
 			break;
 
@@ -159,7 +160,7 @@ function handle_file_request() {
 			exit;
 	}
 
-	$expires_offset = 31536000; // 1 year
+	$expires_offset = 31536000; // 1 year.
 
 	header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + $expires_offset ) . ' GMT' );
 	header( "Cache-Control: public, max-age=$expires_offset" );

@@ -35,7 +35,6 @@ function load() {
  */
 function shared_args() {
 	return [
-
 		'supports'   => [ 'revisions' ],
 		'show_ui'    => true,
 		'can_export' => false,

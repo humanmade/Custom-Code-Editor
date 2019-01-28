@@ -64,7 +64,7 @@ function handle_dependency_ajax() {
 		);
 	}
 
-	if ( empty( $type ) || ! in_array( $type, [ 'cce_css', 'cce_js' ] ) ) {
+	if ( empty( $type ) || ! in_array( $type, [ Post_Types\JS_SLUG, Post_Types\JS_SLUG ], true ) ) {
 		return wp_send_json_error(
 			[
 				'total' => 0,

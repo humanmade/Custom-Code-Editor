@@ -8,6 +8,7 @@
 namespace CustomCodeEditor\Editor;
 
 use CustomCodeEditor;
+use CustomCodeEditor\Post_Types;
 use WP_Post;
 
 /**
@@ -19,8 +20,8 @@ function load() {
 	add_action( 'edit_form_after_title', __NAMESPACE__ . '\\output_file_name_field' );
 	add_action( 'edit_form_after_editor', __NAMESPACE__ . '\\output_editor' );
 	add_filter( 'cmb_meta_boxes', __NAMESPACE__ . '\\register_metaboxes' );
-	add_action( 'add_meta_boxes_cce_css', __NAMESPACE__ . '\\correct_meta_boxes' );
-	add_action( 'add_meta_boxes_cce_js', __NAMESPACE__ . '\\correct_meta_boxes' );
+	add_action( 'add_meta_boxes_' . Post_Types\CSS_SLUG, __NAMESPACE__ . '\\correct_meta_boxes' );
+	add_action( 'add_meta_boxes_' . Post_Types\JS_SLUG, __NAMESPACE__ . '\\correct_meta_boxes' );
 
 	// Backend.
 	add_filter( 'wp_insert_post_empty_content', __NAMESPACE__ . '\\is_empty_post', 10, 2 );
@@ -36,11 +37,11 @@ function load() {
  */
 function output_file_name_field( $post ) {
 	switch ( $post->post_type ) {
-		case 'cce_js':
+		case Post_Types\JS_SLUG:
 			$placeholder = 'file.js';
 			break;
 
-		case 'cce_css':
+		case Post_Types\CSS_SLUG:
 			$placeholder = 'file.css';
 			break;
 
@@ -51,10 +52,16 @@ function output_file_name_field( $post ) {
 
 	<div id="titlediv">
 		<div id="titlewrap">
-			<input type="text" name="post_title" id="title"
+			<input
+				type="text"
+				name="post_title"
+				id="title"
 				value="<?php echo esc_attr( htmlspecialchars( $post->post_title ) ); ?>"
 				placeholder="<?php echo esc_attr( $placeholder ) ?>"
-				class="code" size="30" autocomplete="off" />
+				class="code"
+				size="30"
+				autocomplete="off"
+			/>
 		</div>
 	</div>
 
@@ -74,12 +81,12 @@ function output_editor( WP_Post $post ) {
 	$args = [];
 
 	switch ( $post->post_type ) {
-		case 'cce_js':
+		case Post_Types\JS_SLUG:
 			$placeholder  = '// Your custom JS lives here.';
 			$args['type'] = 'javascript';
 			break;
 
-		case 'cce_css':
+		case Post_Types\CSS_SLUG:
 			$placeholder  = '/* Your custom CSS lives here. */';
 			$args['type'] = 'css';
 			break;
@@ -90,8 +97,11 @@ function output_editor( WP_Post $post ) {
 
 	enqueue_scripts( $args );
 	?>
-		<textarea id="cce_file_editor" name="content"
-			placeholder="<?php echo esc_attr( $placeholder ) ?>"><?php echo esc_textarea( $post->post_content ) ?></textarea>
+		<textarea
+			id="cce_file_editor"
+			name="content"
+			placeholder="<?php echo esc_attr( $placeholder ) ?>"
+		><?php echo esc_textarea( $post->post_content ) ?></textarea>
 	<?php
 }
 
@@ -120,7 +130,7 @@ function correct_meta_boxes() {
  */
 function register_metaboxes( $boxes ) {
 	// Dependency fields.
-	$types = [ 'cce_js', 'cce_css' ];
+	$types = [ Post_Types\JS_SLUG, Post_Types\CSS_SLUG ];
 	foreach ( $types as $type ) {
 		$fields  = [
 			[
@@ -273,7 +283,7 @@ function enqueue_styles() {
  * @return boolean Whether we consider this empty.
  */
 function is_empty_post( $maybe_empty, $postarr ) {
-	if ( $postarr['post_type'] !== 'cce_css' && $postarr['post_type'] !== 'cce_js' ) {
+	if ( $postarr['post_type'] !== Post_Types\CSS_SLUG && $postarr['post_type'] !== Post_Types\JS_SLUG ) {
 		return $maybe_empty;
 	}
 
@@ -301,7 +311,7 @@ function is_empty_post( $maybe_empty, $postarr ) {
  * @return array Corrected data
  */
 function sanitize_post_data( $data, $postarr ) {
-	if ( $data['post_type'] !== 'cce_css' && $data['post_type'] !== 'cce_js' ) {
+	if ( $data['post_type'] !== Post_Types\CSS_SLUG && $data['post_type'] !== Post_Types\JS_SLUG ) {
 		return $data;
 	}
 
@@ -310,7 +320,7 @@ function sanitize_post_data( $data, $postarr ) {
 	// (wp_filter_nohtml_kses expects slashed data).
 	$content = $postarr['post_content'];
 
-	if ( $data['post_type'] === 'cce_css' ) {
+	if ( $data['post_type'] === Post_Types\CSS_SLUG ) {
 		// Re-sanitize, using CSS syntax.
 		$content = sanitize_css( $content );
 	}
