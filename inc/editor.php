@@ -79,7 +79,7 @@ function output_editor( WP_Post $post ) {
 			$args['type'] = 'javascript';
 			break;
 
-		case 'cce_css';
+		case 'cce_css':
 			$placeholder  = '/* Your custom CSS lives here. */';
 			$args['type'] = 'css';
 			break;
@@ -247,7 +247,7 @@ function enqueue_scripts( $args ) {
 		],
 	];
 
-	wp_enqueue_script( 'cce-file-editor', plugins_url( 'assets/editor.js', CustomCodeEditor\BASEFILE ), $deps, '20140710', true );
+	wp_enqueue_script( 'cce-file-editor', plugins_url( 'assets/editor.js', CustomCodeEditor\BASEFILE ), $deps, CustomCodeEditor\VERSION, true );
 	wp_localize_script( 'cce-file-editor', 'cceFileEditor', $data );
 }
 
@@ -260,7 +260,7 @@ function enqueue_styles() {
 	wp_enqueue_style( $prefix . 'cm-lint', plugins_url( 'assets/codemirror/addon/lint/lint.css', CustomCodeEditor\BASEFILE ), [], '4.3' );
 	wp_enqueue_style( $prefix . 'cm-theme-monokai', plugins_url( 'assets/codemirror/theme/monokai.css', CustomCodeEditor\BASEFILE ), [], '4.3' );
 
-	wp_enqueue_style( 'cce-file-editor', plugins_url( 'assets/editor.css', CustomCodeEditor\BASEFILE ), [], '20140710' );
+	wp_enqueue_style( 'cce-file-editor', plugins_url( 'assets/editor.css', CustomCodeEditor\BASEFILE ), [], CustomCodeEditor\VERSION );
 }
 
 /**
@@ -281,7 +281,7 @@ function is_empty_post( $maybe_empty, $postarr ) {
 	// WP includes no native way to detect this, so we hack around it by
 	// checking the call hierarchy.
 	$trace = wp_debug_backtrace_summary( null, 0, false );
-	if ( in_array( 'get_default_post_to_edit', $trace ) ) {
+	if ( in_array( 'get_default_post_to_edit', $trace, true ) ) {
 		return $maybe_empty;
 	}
 
