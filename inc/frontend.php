@@ -8,10 +8,10 @@ use WP_Query;
  * Load the frontend actions
  */
 function load() {
-	add_action( 'wp_ajax_cce-file',              __NAMESPACE__ . '\\handle_file_request' );
-	add_action( 'wp_ajax_nopriv_cce-file',       __NAMESPACE__ . '\\handle_file_request' );
-	add_action( 'wp_enqueue_scripts',           __NAMESPACE__ . '\\register_files' );
-	add_action( 'wp_enqueue_scripts',           __NAMESPACE__ . '\\enqueue_page_files', 100 );
+	add_action( 'wp_ajax_cce-file', __NAMESPACE__ . '\\handle_file_request' );
+	add_action( 'wp_ajax_nopriv_cce-file', __NAMESPACE__ . '\\handle_file_request' );
+	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\register_files' );
+	add_action( 'wp_enqueue_scripts', __NAMESPACE__ . '\\enqueue_page_files', 100 );
 }
 
 /**
@@ -22,10 +22,10 @@ function load() {
  */
 function register_files() {
 	$query = new WP_Query();
-	$args = array(
-		'post_type'      => array( 'cce_css', 'cce_js' ),
+	$args  = [
+		'post_type'      => [ 'cce_css', 'cce_js' ],
 		'posts_per_page' => -1,
-	);
+	];
 	$files = $query->query( $args );
 
 	// Register all files
@@ -47,21 +47,23 @@ function register_files() {
 
 		$handle = 'cce-file-' . $file->ID;
 
-		$url = admin_url( 'admin-ajax.php' );
-		$args = array(
+		$url  = admin_url( 'admin-ajax.php' );
+		$args = [
 			'action' => 'cce-file',
 			'id'     => $file->ID,
-		);
-		$url = add_query_arg( $args, $url );
+		];
+		$url  = add_query_arg( $args, $url );
 
 		// Fetch dependencies from the database
 		$deps = get_post_meta( $file->ID, 'dependencies', false );
-		$deps = array_map( function ( $id ) {
-			return 'cce-file-' . $id;
-		}, $deps );
+		$deps = array_map(
+			function ( $id ) {
+					return 'cce-file-' . $id;
+			}, $deps
+		);
 
 		if ( empty( $deps ) ) {
-			$deps = array();
+			$deps = [];
 		}
 
 		// Use last-modified time as version
@@ -130,7 +132,7 @@ function handle_file_request() {
 	}
 
 	$post_id = absint( $_GET['id'] );
-	$file = get_post( $post_id );
+	$file    = get_post( $post_id );
 	if ( empty( $file ) ) {
 		exit;
 	}
@@ -150,8 +152,8 @@ function handle_file_request() {
 
 	$expires_offset = 31536000; // 1 year
 
-	header('Expires: ' . gmdate( "D, d M Y H:i:s", time() + $expires_offset ) . ' GMT');
-	header("Cache-Control: public, max-age=$expires_offset");
+	header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + $expires_offset ) . ' GMT' );
+	header( "Cache-Control: public, max-age=$expires_offset" );
 
 	echo $file->post_content;
 	exit;

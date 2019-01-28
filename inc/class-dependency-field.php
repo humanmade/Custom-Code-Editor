@@ -16,19 +16,19 @@ class Dependency_Field extends CMB_Post_Select {
 	public function __construct() {
 
 		$args = func_get_args();
-		call_user_func_array( array( 'parent', '__construct' ), $args );
+		call_user_func_array( [ 'parent', '__construct' ], $args );
 
-		$defaults = array(
+		$defaults = [
 			'post_type' => 'cce_css',
 			'exclude_current' => true,
-		);
+		];
 
 		$this->args = wp_parse_args( $this->args, $defaults );
 
 		// BC with built-in
 		$this->args['use_ajax']  = true;
 		$this->args['ajax_url']  = admin_url( 'admin-ajax.php' );
-		$this->args['query']     = array(); // Handled in Ajax callback
+		$this->args['query']     = []; // Handled in Ajax callback
 		$this->args['ajax_args'] = wp_parse_args( $this->args['query'] );
 
 	}
@@ -39,7 +39,7 @@ class Dependency_Field extends CMB_Post_Select {
 	public function enqueue_scripts() {
 		parent::enqueue_scripts();
 
-		wp_enqueue_script( 'cce_dependency_field', plugins_url( 'assets/dependency-field.js', BASEFILE ), array( 'field-select' ), '20140711' );
+		wp_enqueue_script( 'cce_dependency_field', plugins_url( 'assets/dependency-field.js', BASEFILE ), [ 'field-select' ], '20140711' );
 	}
 
 	/**
@@ -76,12 +76,30 @@ class Dependency_Field extends CMB_Post_Select {
 						<?php if ( $this->args['multiple'] ) : ?>
 
 							<?php foreach ( (array) $this->value as $post_id ) : ?>
-								data.push( <?php echo json_encode( array( 'id' => $post_id, 'text' => html_entity_decode( get_the_title( $post_id ) ) ) ); ?> );
+								data.push( 
+								<?php
+								echo json_encode(
+									[
+										'id' => $post_id,
+										'text' => html_entity_decode( get_the_title( $post_id ) ),
+									]
+								);
+								?>
+											 );
 							<?php endforeach; ?>
 
 						<?php else : ?>
 
-							data = <?php echo json_encode( array( 'id' => $this->value, 'text' => html_entity_decode( get_the_title( $this->get_value() ) ) ) ); ?>;
+							data = 
+							<?php
+							echo json_encode(
+								[
+									'id' => $this->value,
+									'text' => html_entity_decode( get_the_title( $this->get_value() ) ),
+								]
+							);
+							?>
+									;
 
 						<?php endif; ?>
 
@@ -92,12 +110,12 @@ class Dependency_Field extends CMB_Post_Select {
 				<?php endif; ?>
 
 				<?php
-				$data = array(
+				$data = [
 					'action'    => 'cce_dependency_select',
 					'nonce'     => wp_create_nonce( 'cce_dependency_field' ),
 					'post_type' => $this->args['post_type'],
 					'post_id'   => (string) get_the_id(),
-				);
+				];
 
 				if ( $this->args['exclude_current'] ) {
 					$data['exclude_current'] = true;
@@ -117,7 +135,7 @@ class Dependency_Field extends CMB_Post_Select {
 					results : function( results, page ) {
 						var postsPerPage = 10;
 						var isMore = ( page * postsPerPage ) < results.total;
-	            		return { results: results.posts, more: isMore };
+						return { results: results.posts, more: isMore };
 					}
 				}
 
@@ -136,11 +154,11 @@ class Dependency_Field extends CMB_Post_Select {
 	 *
 	 * Checks for circular dependencies.
 	 *
-	 * @param int $post_id Post ID
+	 * @param int   $post_id Post ID
 	 * @param array $values Values to save
 	 */
 	public function save( $post_id, $values ) {
-		$sanitized_values = array();
+		$sanitized_values = [];
 
 		$parent = wp_is_post_revision( $post_id );
 

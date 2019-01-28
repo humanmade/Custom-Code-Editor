@@ -9,16 +9,16 @@ use CustomCodeEditor;
  */
 function load() {
 	// UI
-	add_action( 'admin_enqueue_scripts',         __NAMESPACE__ . '\\enqueue_styles' );
-	add_action( 'edit_form_after_title',         __NAMESPACE__ . '\\output_file_name_field' );
-	add_action( 'edit_form_after_editor',        __NAMESPACE__ . '\\output_editor' );
-	add_filter( 'cmb_meta_boxes',                __NAMESPACE__ . '\\register_metaboxes' );
-	add_action( 'add_meta_boxes_cce_css',        __NAMESPACE__ . '\\correct_meta_boxes' );
-	add_action( 'add_meta_boxes_cce_js',         __NAMESPACE__ . '\\correct_meta_boxes' );
+	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_styles' );
+	add_action( 'edit_form_after_title', __NAMESPACE__ . '\\output_file_name_field' );
+	add_action( 'edit_form_after_editor', __NAMESPACE__ . '\\output_editor' );
+	add_filter( 'cmb_meta_boxes', __NAMESPACE__ . '\\register_metaboxes' );
+	add_action( 'add_meta_boxes_cce_css', __NAMESPACE__ . '\\correct_meta_boxes' );
+	add_action( 'add_meta_boxes_cce_js', __NAMESPACE__ . '\\correct_meta_boxes' );
 
 	// Backend
-	add_filter( 'wp_insert_post_empty_content',  __NAMESPACE__ . '\\is_empty_post', 10, 2 );
-	add_filter( 'wp_insert_post_data',           __NAMESPACE__ . '\\sanitize_post_data', 10, 2 );
+	add_filter( 'wp_insert_post_empty_content', __NAMESPACE__ . '\\is_empty_post', 10, 2 );
+	add_filter( 'wp_insert_post_data', __NAMESPACE__ . '\\sanitize_post_data', 10, 2 );
 }
 
 /**
@@ -65,16 +65,16 @@ function output_file_name_field( $post ) {
  * @param WP_Post $post
  */
 function output_editor( $post ) {
-	$args = array();
+	$args = [];
 
 	switch ( $post->post_type ) {
 		case 'cce_js':
-			$placeholder = '// Your custom JS lives here.';
+			$placeholder  = '// Your custom JS lives here.';
 			$args['type'] = 'javascript';
 			break;
 
 		case 'cce_css';
-			$placeholder = '/* Your custom CSS lives here. */';
+			$placeholder  = '/* Your custom CSS lives here. */';
 			$args['type'] = 'css';
 			break;
 
@@ -100,7 +100,7 @@ function correct_meta_boxes() {
 	$page = get_current_screen()->id;
 
 	// Move revisions to the side
-	if ( isset( $wp_meta_boxes[$page]['normal']['core']['revisionsdiv'] ) ) {
+	if ( isset( $wp_meta_boxes[ $page ]['normal']['core']['revisionsdiv'] ) ) {
 		remove_meta_box( 'revisionsdiv', null, 'normal' );
 		add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', null, 'side', 'low' );
 	}
@@ -114,37 +114,37 @@ function correct_meta_boxes() {
  */
 function register_metaboxes( $boxes ) {
 	// Dependency fields
-	$types = array( 'cce_js', 'cce_css' );
+	$types = [ 'cce_js', 'cce_css' ];
 	foreach ( $types as $type ) {
-		$fields = array(
-			array(
+		$fields  = [
+			[
 				'id' => 'dependencies',
 				'name' => '',
 				'type' => 'cce_dependency',
 				'repeatable' => true,
 				'post_type' => $type,
-			),
-		);
-		$boxes[] = array(
+			],
+		];
+		$boxes[] = [
 			'title' => __( 'Dependencies' ),
 			'pages' => $type,
 			'fields' => $fields,
-		);
+		];
 	}
 
-	$boxes[] = array(
+	$boxes[] = [
 		'title' => __( 'File Properties' ),
 		'pages' => $types,
 		'context' => 'side',
 		'priority' => 'high',
-		'fields' => array(
-			array(
+		'fields' => [
+			[
 				'id' => 'global',
 				'name' => __( 'Load globally' ),
 				'type' => 'checkbox',
-			),
-		),
-	);
+			],
+		],
+	];
 
 	return $boxes;
 }
@@ -159,55 +159,55 @@ function register_metaboxes( $boxes ) {
 function enqueue_scripts( $args ) {
 	$prefix = 'cce-file-editor-';
 
-	$scripts = array(
-		$prefix . 'cm' => array(
+	$scripts = [
+		$prefix . 'cm' => [
 			'path' => 'assets/codemirror/lib/codemirror.js',
-		),
+		],
 
 		// Linter
-		$prefix . 'jshint' => array(
+		$prefix . 'jshint' => [
 			'path' => 'assets/jshint.js',
-		),
-		$prefix . 'csslint' => array(
+		],
+		$prefix . 'csslint' => [
 			'path' => 'assets/csslint.js',
-		),
-		$prefix . 'cm-lint' => array(
+		],
+		$prefix . 'cm-lint' => [
 			'path' => 'assets/codemirror/addon/lint/lint.js',
-		),
-		$prefix . 'cm-lint-javascript' => array(
+		],
+		$prefix . 'cm-lint-javascript' => [
 			'path' => 'assets/codemirror/addon/lint/javascript-lint.js',
-			'deps' => array(
+			'deps' => [
 				$prefix . 'jshint',
 				$prefix . 'cm-lint',
-			),
-		),
-		$prefix . 'cm-lint-css' => array(
+			],
+		],
+		$prefix . 'cm-lint-css' => [
 			'path' => 'assets/codemirror/addon/lint/css-lint.js',
-			'deps' => array(
+			'deps' => [
 				$prefix . 'csslint',
 				$prefix . 'cm-lint',
-			),
-		),
+			],
+		],
 
 		// Placeholder
-		$prefix . 'cm-placeholder' => array(
+		$prefix . 'cm-placeholder' => [
 			'path' => 'assets/codemirror/addon/display/placeholder.js',
-		),
+		],
 
 		// Modes
-		$prefix . 'cm-mode-css' => array(
+		$prefix . 'cm-mode-css' => [
 			'path' => 'assets/codemirror/mode/css/css.js',
-		),
-		$prefix . 'cm-mode-javascript' => array(
+		],
+		$prefix . 'cm-mode-javascript' => [
 			'path' => 'assets/codemirror/mode/javascript/javascript.js',
-		),
-	);
+		],
+	];
 
-	$defaults = array(
-		'deps'      => array(),
+	$defaults = [
+		'deps'      => [],
 		'version'   => '4.3',
 		'in_footer' => true,
-	);
+	];
 
 	foreach ( $scripts as $handle => $script ) {
 		$script = wp_parse_args( $script, $defaults );
@@ -218,16 +218,16 @@ function enqueue_scripts( $args ) {
 		wp_register_script( $handle, $url, $script['deps'], $script['version'], $script['in_footer'] );
 	}
 
-	$deps = array(
+	$deps = [
 		'jquery',
 		$prefix . 'cm',
 		$prefix . 'cm-mode-' . $args['type'],
 		$prefix . 'cm-lint-' . $args['type'],
 		$prefix . 'cm-placeholder',
-	);
-	$data = array(
+	];
+	$data = [
 		'fieldId'    => 'cce_file_editor',
-		'codeMirror' => array(
+		'codeMirror' => [
 			'mode'           => $args['type'],
 			'lineNumbers'    => true,
 			'indentUnit'     => 4,
@@ -236,10 +236,10 @@ function enqueue_scripts( $args ) {
 			'lineWrapping'   => true,
 
 			// Addons
-			'gutters'        => array( 'CodeMirror-lint-markers' ),
+			'gutters'        => [ 'CodeMirror-lint-markers' ],
 			'lint'           => true,
-		),
-	);
+		],
+	];
 
 	wp_enqueue_script( 'cce-file-editor', plugins_url( 'assets/editor.js', CustomCodeEditor\BASEFILE ), $deps, '20140710', true );
 	wp_localize_script( 'cce-file-editor', 'cceFileEditor', $data );
@@ -250,18 +250,18 @@ function enqueue_scripts( $args ) {
  */
 function enqueue_styles() {
 	$prefix = 'cce-file-editor-';
-	wp_enqueue_style( $prefix . 'cm', plugins_url( 'assets/codemirror/lib/codemirror.css', CustomCodeEditor\BASEFILE ), array(), '4.3' );
-	wp_enqueue_style( $prefix . 'cm-lint', plugins_url( 'assets/codemirror/addon/lint/lint.css', CustomCodeEditor\BASEFILE ), array(), '4.3' );
-	wp_enqueue_style( $prefix . 'cm-theme-monokai', plugins_url( 'assets/codemirror/theme/monokai.css', CustomCodeEditor\BASEFILE ), array(), '4.3' );
+	wp_enqueue_style( $prefix . 'cm', plugins_url( 'assets/codemirror/lib/codemirror.css', CustomCodeEditor\BASEFILE ), [], '4.3' );
+	wp_enqueue_style( $prefix . 'cm-lint', plugins_url( 'assets/codemirror/addon/lint/lint.css', CustomCodeEditor\BASEFILE ), [], '4.3' );
+	wp_enqueue_style( $prefix . 'cm-theme-monokai', plugins_url( 'assets/codemirror/theme/monokai.css', CustomCodeEditor\BASEFILE ), [], '4.3' );
 
-	wp_enqueue_style( 'cce-file-editor', plugins_url( 'assets/editor.css', CustomCodeEditor\BASEFILE ), array(), '20140710' );
+	wp_enqueue_style( 'cce-file-editor', plugins_url( 'assets/editor.css', CustomCodeEditor\BASEFILE ), [], '20140710' );
 }
 
 /**
  * Check whether the post should be considered "empty"
  *
  * @param boolean $maybe_empty Should we consider this empty?
- * @param array $postarr Post data submitted to {@see wp_insert_post}
+ * @param array   $postarr Post data submitted to {@see wp_insert_post}
  * @return boolean Whether we consider this empty.
  */
 function is_empty_post( $maybe_empty, $postarr ) {
