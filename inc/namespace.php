@@ -33,7 +33,6 @@ const BASEFILE = __FILE__;
  */
 function load() {
 	add_action( 'init', __NAMESPACE__ . '\\register_post_types' );
-	add_filter( 'cmb_field_types', __NAMESPACE__ . '\\register_fields' );
 	add_filter( 'cmb_meta_boxes', __NAMESPACE__ . '\\register_metaboxes' );
 	add_action( 'wp_ajax_cce_dependency_select', __NAMESPACE__ . '\\handle_dependency_ajax' );
 }
@@ -94,19 +93,6 @@ function register_post_types() {
 			],
 		]
 	);
-}
-
-/**
- * Register custom fields for CMB
- *
- * Adds our dependency field to the available custom fields.
- *
- * @param array $fields Available fields
- * @return array Filtered fields
- */
-function register_fields( $fields ) {
-	$fields['cce_dependency'] = __NAMESPACE__ . '\\Dependency_Field';
-	return $fields;
 }
 
 /**
