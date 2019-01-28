@@ -1,27 +1,29 @@
 <?php
-/*
-Plugin Name: Custom Code Editor
-Plugin URI: https://github.com/humanmade/Custom-Code-Editor
-Description: Lets you add custom code snippets on a global, per-page or dependency basis. Requires Human Made's Custom Meta Boxes for per-page and dependency features.
-Version: 1.0.1
-License: GPL-2.0+
-Requires PHP: 5.4
-Author: Human Made Limited
-Author URI: http://hmn.md
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License, version 2, as
-published by the Free Software Foundation.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+/**
+ * Plugin Name: Custom Code Editor
+ * Plugin URI: https://github.com/humanmade/Custom-Code-Editor
+ * Description: Lets you add custom code snippets on a global, per-page or dependency basis. Requires Human Made's Custom Meta Boxes for per-page and dependency features.
+ * Version: 1.0.1
+ * License: GPL-2.0+
+ * Requires PHP: 5.4
+ * Author: Human Made Limited
+ * Author URI: http://hmn.md
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License, version 2, as
+ * published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * @package CustomCodeEditor
+ */
 
 namespace CustomCodeEditor;
 
@@ -45,7 +47,7 @@ Frontend\load();
 /**
  * Autoload our classes in
  *
- * @param string $class
+ * @param string $class Class being parsed.
  */
 function autoload( $class ) {
 	if ( strpos( $class, 'CustomCodeEditor' ) !== 0 ) {
@@ -137,11 +139,11 @@ function register_fields( $fields ) {
 }
 
 /**
- * Register metabox for pages
+ * Register metabox for pages.
  *
  * Allows setting dependencies on pages.
  *
- * @param array $boxes Registered metaboxes
+ * @param array $boxes Registered metaboxes.
  * @return array
  */
 function register_metaboxes( $boxes ) {
@@ -173,7 +175,7 @@ function register_metaboxes( $boxes ) {
 }
 
 /**
- * Handle Ajax requests for the dependency field
+ * Handle Ajax requests for the dependency field.
  *
  * Handles fetching file IDs for the dependency field Ajax requests
  */

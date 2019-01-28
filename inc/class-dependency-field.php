@@ -1,11 +1,16 @@
 <?php
+/**
+ * Custom HMCMB metabox class.
+ *
+ * @package CustomCodeEditor
+ */
 
 namespace CustomCodeEditor;
 
 use CMB_Post_Select;
 
 /**
- * Dependency selector field
+ * Dependency selector field.
  *
  * Allows files/posts to depend on other files.
  */
@@ -25,7 +30,7 @@ class Dependency_Field extends CMB_Post_Select {
 
 		$this->args = wp_parse_args( $this->args, $defaults );
 
-		// BC with built-in
+		// BC with built-in.
 		$this->args['use_ajax']  = true;
 		$this->args['ajax_url']  = admin_url( 'admin-ajax.php' );
 		$this->args['query']     = []; // Handled in Ajax callback
@@ -34,7 +39,7 @@ class Dependency_Field extends CMB_Post_Select {
 	}
 
 	/**
-	 * Enqueue scripts for the field
+	 * Enqueue scripts for the field.
 	 */
 	public function enqueue_scripts() {
 		parent::enqueue_scripts();
@@ -43,7 +48,7 @@ class Dependency_Field extends CMB_Post_Select {
 	}
 
 	/**
-	 * Output inline script
+	 * Output inline script.
 	 */
 	public function output_script() {
 
@@ -76,7 +81,7 @@ class Dependency_Field extends CMB_Post_Select {
 						<?php if ( $this->args['multiple'] ) : ?>
 
 							<?php foreach ( (array) $this->value as $post_id ) : ?>
-								data.push( 
+								data.push(
 								<?php
 								echo json_encode(
 									[
@@ -90,7 +95,7 @@ class Dependency_Field extends CMB_Post_Select {
 
 						<?php else : ?>
 
-							data = 
+							data =
 							<?php
 							echo json_encode(
 								[
@@ -147,15 +152,16 @@ class Dependency_Field extends CMB_Post_Select {
 	}
 
 	/**
-	 * Save the data into post meta
+	 * Save the data into post meta.
 	 *
 	 * CMB_Field doesn't pass the post ID into the parse methods, so we need to
 	 * check necessary stuff here.
 	 *
 	 * Checks for circular dependencies.
 	 *
-	 * @param int   $post_id Post ID
-	 * @param array $values Values to save
+	 * @param int   $post_id Post ID.
+	 * @param array $values Values to save.
+	 * @return
 	 */
 	public function save( $post_id, $values ) {
 		$sanitized_values = [];
@@ -180,10 +186,10 @@ class Dependency_Field extends CMB_Post_Select {
 	}
 
 	/**
-	 * Check if a file depends on another
+	 * Check if a file depends on another.
 	 *
-	 * @param string|int $file_id File to check dependencies of
-	 * @param string|int $dep_id
+	 * @param string|int $file_id File to check dependencies of.
+	 * @param string|int $dep_id.
 	 * @return boolean True if `$file_id` or one of its dependencies depends on `$dep_id`
 	 */
 	protected function depends_on( $file_id, $dep_id ) {
@@ -194,12 +200,12 @@ class Dependency_Field extends CMB_Post_Select {
 
 		$file_deps = get_post_meta( $post->ID, $this->id, false );
 
-		// Check if we're a direct dependency
+		// Check if we're a direct dependency.
 		if ( in_array( $dep_id, $file_deps ) ) {
 			return true;
 		}
 
-		// Check children
+		// Check children.
 		foreach ( $file_deps as $sub_dep ) {
 			if ( $this->depends_on( $sub_dep, $dep_id ) ) {
 				return true;

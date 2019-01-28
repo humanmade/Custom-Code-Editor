@@ -1,11 +1,16 @@
 <?php
+/**
+ * Handles frontend CSS & JS display.
+ *
+ * @package CustomCodeEditor
+ */
 
 namespace CustomCodeEditor\Frontend;
 
 use WP_Query;
 
 /**
- * Load the frontend actions
+ * Load the frontend actions.
  */
 function load() {
 	add_action( 'wp_ajax_cce-file', __NAMESPACE__ . '\\handle_file_request' );
@@ -15,10 +20,14 @@ function load() {
 }
 
 /**
- * Register all custom files with WP
+ * Register all custom files with WP.
  *
- * Uses underlying {@see WP_Dependencies} object behind {@see wp_enqueue_script}
- * and {@see wp_enqueue_style}
+ * @see WP_Dependencies
+ * @see wp_enqueue_script
+ * @see wp_enqueue_style
+ *
+ * Uses underlying WP_Dependencies object behind wp_enqueue_script
+ * and wp_enqueue_style.
  */
 function register_files() {
 	$query = new WP_Query();
@@ -28,7 +37,7 @@ function register_files() {
 	];
 	$files = $query->query( $args );
 
-	// Register all files
+	// Register all files.
 	foreach ( $files as $file ) {
 		switch ( $file->post_type ) {
 			case 'cce_css':
@@ -40,7 +49,7 @@ function register_files() {
 				break;
 		}
 
-		// Sanity check
+		// Sanity check.
 		if ( empty( $handler ) ) {
 			continue;
 		}
@@ -54,7 +63,7 @@ function register_files() {
 		];
 		$url  = add_query_arg( $args, $url );
 
-		// Fetch dependencies from the database
+		// Fetch dependencies from the database.
 		$deps = get_post_meta( $file->ID, 'dependencies', false );
 		$deps = array_map(
 			function ( $id ) {
@@ -66,10 +75,10 @@ function register_files() {
 			$deps = [];
 		}
 
-		// Use last-modified time as version
+		// Use last-modified time as version.
 		$version = mysql2date( 'YmdHis', $file->post_modified, false );
 
-		// Register the script
+		// Register the script.
 		$handler->add( $handle, $url, $deps, $version );
 
 		// Should we actually enqueue this one?
@@ -86,8 +95,8 @@ function register_files() {
 		 * active, we enqueue it on to the current page.
 		 *
 		 * @param boolean $is_active Is this file active?
-		 * @param string $handle File handle
-		 * @param WP_Post $file File post data
+		 * @param string $handle File handle.
+		 * @param WP_Post $file File post data.
 		 */
 		$is_active = apply_filters( 'cce_file_is_active', $is_active, $handle, $file );
 		if ( $is_active ) {
@@ -97,7 +106,7 @@ function register_files() {
 }
 
 /**
- * Enqueue all files listed as dependencies for the current page
+ * Enqueue all files listed as dependencies for the current page.
  */
 function enqueue_page_files() {
 	global $wp_query;
@@ -122,7 +131,7 @@ function enqueue_page_files() {
 }
 
 /**
- * Serve up an individual file
+ * Serve up an individual file.
  *
  * Handles HTTP requests for CSS/JS files.
  */

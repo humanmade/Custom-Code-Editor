@@ -1,14 +1,20 @@
 <?php
+/**
+ * Handles editor dependencies and display.
+ *
+ * @package CustomCodeEditor
+ */
 
 namespace CustomCodeEditor\Editor;
 
 use CustomCodeEditor;
+use WP_Post;
 
 /**
- * Load the editor actions
+ * Load the editor actions.
  */
 function load() {
-	// UI
+	// UI.
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_styles' );
 	add_action( 'edit_form_after_title', __NAMESPACE__ . '\\output_file_name_field' );
 	add_action( 'edit_form_after_editor', __NAMESPACE__ . '\\output_editor' );
@@ -16,17 +22,17 @@ function load() {
 	add_action( 'add_meta_boxes_cce_css', __NAMESPACE__ . '\\correct_meta_boxes' );
 	add_action( 'add_meta_boxes_cce_js', __NAMESPACE__ . '\\correct_meta_boxes' );
 
-	// Backend
+	// Backend.
 	add_filter( 'wp_insert_post_empty_content', __NAMESPACE__ . '\\is_empty_post', 10, 2 );
 	add_filter( 'wp_insert_post_data', __NAMESPACE__ . '\\sanitize_post_data', 10, 2 );
 }
 
 /**
- * Output filename field
+ * Output filename field.
  *
  * Acts as the post title for custom files.
  *
- * @param WP_Post $post
+ * @param WP_Post $post Post object.
  */
 function output_file_name_field( $post ) {
 	switch ( $post->post_type ) {
@@ -56,15 +62,15 @@ function output_file_name_field( $post ) {
 }
 
 /**
- * Output HTML for the editor
+ * Output HTML for the editor.
  *
  * Unlike the built-in editor, this doesn't ever use TinyMCE, but rather inserts
  * our own custom textarea. However, it uses the correct name (`content`) so
  * that WP handles it correctly.
  *
- * @param WP_Post $post
+ * @param WP_Post $post Post object.
  */
-function output_editor( $post ) {
+function output_editor( WP_Post $post ) {
 	$args = [];
 
 	switch ( $post->post_type ) {
@@ -90,7 +96,7 @@ function output_editor( $post ) {
 }
 
 /**
- * Correct the metaboxes on the file editor pages
+ * Correct the metaboxes on the file editor pages.
  *
  * Moves the revisions metabox to the side, rather than underneath the editor.
  */
@@ -99,7 +105,7 @@ function correct_meta_boxes() {
 
 	$page = get_current_screen()->id;
 
-	// Move revisions to the side
+	// Move revisions to the side.
 	if ( isset( $wp_meta_boxes[ $page ]['normal']['core']['revisionsdiv'] ) ) {
 		remove_meta_box( 'revisionsdiv', null, 'normal' );
 		add_meta_box( 'revisionsdiv', __( 'Revisions' ), 'post_revisions_meta_box', null, 'side', 'low' );
@@ -107,13 +113,13 @@ function correct_meta_boxes() {
 }
 
 /**
- * Register dependency metaboxes for file editor pages
+ * Register dependency metaboxes for file editor pages.
  *
- * @param array $boxes Custom Meta Boxes data
+ * @param array $boxes Custom Meta Boxes data.
  * @return array
  */
 function register_metaboxes( $boxes ) {
-	// Dependency fields
+	// Dependency fields.
 	$types = [ 'cce_js', 'cce_css' ];
 	foreach ( $types as $type ) {
 		$fields  = [
@@ -150,11 +156,11 @@ function register_metaboxes( $boxes ) {
 }
 
 /**
- * Enqueue the scripts needed for the editor
+ * Enqueue the scripts needed for the editor.
  *
  * Called via {@see output_editor}, as it's not needed on every page.
  *
- * @param array $args Editor arguments (including `type` for current file type)
+ * @param array $args Editor arguments (including `type` for current file type).
  */
 function enqueue_scripts( $args ) {
 	$prefix = 'cce-file-editor-';
@@ -164,7 +170,7 @@ function enqueue_scripts( $args ) {
 			'path' => 'assets/codemirror/lib/codemirror.js',
 		],
 
-		// Linter
+		// Linter.
 		$prefix . 'jshint' => [
 			'path' => 'assets/jshint.js',
 		],
@@ -189,12 +195,12 @@ function enqueue_scripts( $args ) {
 			],
 		],
 
-		// Placeholder
+		// Placeholder.
 		$prefix . 'cm-placeholder' => [
 			'path' => 'assets/codemirror/addon/display/placeholder.js',
 		],
 
-		// Modes
+		// Modes.
 		$prefix . 'cm-mode-css' => [
 			'path' => 'assets/codemirror/mode/css/css.js',
 		],
@@ -212,7 +218,7 @@ function enqueue_scripts( $args ) {
 	foreach ( $scripts as $handle => $script ) {
 		$script = wp_parse_args( $script, $defaults );
 
-		// Work out correct URL
+		// Work out correct URL.
 		$url = plugins_url( $script['path'], CustomCodeEditor\BASEFILE );
 
 		wp_register_script( $handle, $url, $script['deps'], $script['version'], $script['in_footer'] );
@@ -235,7 +241,7 @@ function enqueue_scripts( $args ) {
 			'indentWithTabs' => true,
 			'lineWrapping'   => true,
 
-			// Addons
+			// Addons.
 			'gutters'        => [ 'CodeMirror-lint-markers' ],
 			'lint'           => true,
 		],
@@ -246,7 +252,7 @@ function enqueue_scripts( $args ) {
 }
 
 /**
- * Enqueue styles for the editor
+ * Enqueue styles for the editor.
  */
 function enqueue_styles() {
 	$prefix = 'cce-file-editor-';
@@ -260,8 +266,10 @@ function enqueue_styles() {
 /**
  * Check whether the post should be considered "empty"
  *
+ * @see wp_insert_post
+ *
  * @param boolean $maybe_empty Should we consider this empty?
- * @param array   $postarr Post data submitted to {@see wp_insert_post}
+ * @param array   $postarr Post data submitted to wp_insert_post.
  * @return boolean Whether we consider this empty.
  */
 function is_empty_post( $maybe_empty, $postarr ) {
@@ -270,8 +278,8 @@ function is_empty_post( $maybe_empty, $postarr ) {
 	}
 
 	// Ignore when fetching the default post
-	// (WP includes no native way to detect this, so we hack around it by
-	// checking the call hierarchy)
+	// WP includes no native way to detect this, so we hack around it by
+	// checking the call hierarchy.
 	$trace = wp_debug_backtrace_summary( null, 0, false );
 	if ( in_array( 'get_default_post_to_edit', $trace ) ) {
 		return $maybe_empty;
@@ -281,13 +289,15 @@ function is_empty_post( $maybe_empty, $postarr ) {
 }
 
 /**
- * Sanitize post data in {@see wp_insert_post}
+ * Sanitize post data in wp_insert_post.
  *
  * Overrides the post content for the file posts, using our own custom
  * sanitization instead of kses.
  *
- * @param array $data Data to insert
- * @param array $postarr Unsanitised data submitted to {@see wp_insert_post}
+ * @see wp_insert_post
+ *
+ * @param array $data Data to insert.
+ * @param array $postarr Unsanitised data submitted to wp_insert_post.
  * @return array Corrected data
  */
 function sanitize_post_data( $data, $postarr ) {
@@ -295,17 +305,17 @@ function sanitize_post_data( $data, $postarr ) {
 		return $data;
 	}
 
-	// Reset content to originally submitted content
-	// (Undoes the kses-related filtering)
-	// (wp_filter_nohtml_kses expects slashed data)
+	// Reset content to originally submitted content.
+	// (Undoes the kses-related filtering).
+	// (wp_filter_nohtml_kses expects slashed data).
 	$content = $postarr['post_content'];
 
 	if ( $data['post_type'] === 'cce_css' ) {
-		// Re-sanitize, using CSS syntax
+		// Re-sanitize, using CSS syntax.
 		$content = sanitize_css( $content );
 	}
 
-	// Set to sanitized version
+	// Set to sanitized version.
 	$data['post_content'] = $content;
 
 	return $data;
@@ -317,14 +327,14 @@ function sanitize_post_data( $data, $postarr ) {
  * Strips HTML from the CSS file. This is just making sure, but there's no real
  * reason we need to do this.
  *
- * @param string $css CSS data
+ * @param string $css CSS data.
  * @return string Sanitized CSS data
  */
 function sanitize_css( $css ) {
-	// Based on code from Automattic's Safe CSS
-	// (wp_filter_nohtml_kses expects slashed data)
+	// Based on code from Automattic's Safe CSS.
+	// (wp_filter_nohtml_kses expects slashed data).
 	$css = wp_filter_nohtml_kses( $css );
-	$css = str_replace( '&gt;', '>', $css ); // kses replaces lone '>' with &gt;
+	$css = str_replace( '&gt;', '>', $css ); // kses replaces lone '>' with &gt;.
 
 	// Why both KSES and strip_tags? Because we just added some '>'.
 	$css = strip_tags( $css );
