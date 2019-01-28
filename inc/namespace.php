@@ -11,124 +11,30 @@ namespace CustomCodeEditor;
 use WP_Query;
 
 /**
- *
- */
-const SUPPORTS_DEFAULT = [
-	'css',
-	'js',
-];
-
-/**
- *
+ * Current version of the plugin.
  */
 const VERSION = '2.0.0';
-
-/**
- *
- */
-const BASEFILE = __FILE__;
 
 /**
  * Namespace setup & hooks.
  */
 function load() {
 	add_action( 'init', __NAMESPACE__ . '\\register_post_types' );
-	add_filter( 'cmb_meta_boxes', __NAMESPACE__ . '\\register_metaboxes' );
 	add_action( 'wp_ajax_cce_dependency_select', __NAMESPACE__ . '\\handle_dependency_ajax' );
 }
 
 /**
- * Register custom data post types
- */
-function register_post_types() {
-	$labels = [
-		'singular_name'      => _x( 'File', 'post type singular name' ),
-		'add_new'            => _x( 'Add New', 'file' ),
-		'add_new_item'       => __( 'Add New File' ),
-		'edit_item'          => __( 'Edit File' ),
-		'new_item'           => __( 'New File' ),
-		'view_item'          => __( 'View File' ),
-		'search_items'       => __( 'Search Files' ),
-		'not_found'          => __( 'No files found.' ),
-		'not_found_in_trash' => __( 'No files found in Trash.' ),
-		'all_items'          => __( 'All Files' ),
-	];
-
-	register_post_type(
-		'cce_css', [
-			'label'        => 'Custom CSS',
-			'supports'     => [ 'revisions' ],
-			'show_ui'      => true,
-			'can_export'   => false,
-			'rewrite'      => false,
-			'labels'       => $labels,
-			'capabilities' => [
-				'edit_post'          => 'edit_theme_options',
-				'read_post'          => 'read',
-				'delete_post'        => 'edit_theme_options',
-				'edit_posts'         => 'edit_theme_options',
-				'edit_others_posts'  => 'edit_theme_options',
-				'publish_posts'      => 'edit_theme_options',
-				'read_private_posts' => 'read',
-			],
-		]
-	);
-
-	register_post_type(
-		'cce_js', [
-			'label'        => 'Custom JS',
-			'supports'     => [ 'revisions' ],
-			'show_ui'      => true,
-			'can_export'   => false,
-			'rewrite'      => false,
-			'labels'       => $labels,
-			'capabilities' => [
-				'edit_post'          => 'edit_theme_options',
-				'read_post'          => 'read',
-				'delete_post'        => 'edit_theme_options',
-				'edit_posts'         => 'edit_theme_options',
-				'edit_others_posts'  => 'edit_theme_options',
-				'publish_posts'      => 'edit_theme_options',
-				'read_private_posts' => 'read',
-			],
-		]
-	);
-}
-
-/**
- * Register metabox for pages.
+ * Get available languages.
  *
- * Allows setting dependencies on pages.
- *
- * @param array $boxes Registered metaboxes.
  * @return array
  */
-function register_metaboxes( $boxes ) {
-	$boxes[] = [
-		'title' => __( 'File Dependencies' ),
-		'pages' => 'page',
-		'context' => 'advanced',
-		'fields' => [
-			[
-				'id'              => 'dependencies_css',
-				'name'            => __( 'Styles' ),
-				'type'            => 'cce_dependency',
-				'repeatable'      => true,
-				'post_type'       => 'cce_css',
-				'exclude_current' => false,
-			],
-			[
-				'id'              => 'dependencies_js',
-				'name'            => __( 'Scripts' ),
-				'type'            => 'cce_dependency',
-				'repeatable'      => true,
-				'post_type'       => 'cce_js',
-				'exclude_current' => false,
-			],
-		],
-	];
-
-	return $boxes;
+function get_used_languages() : array {
+	/**
+	 * Filter which languages are available on the site.
+	 *
+	 * @param array $languages
+	 */
+	return apply_filters( 'cce_languages', [ 'css', 'js' ] );
 }
 
 /**
@@ -173,6 +79,7 @@ function handle_dependency_ajax() {
 		'paged'          => $page,
 		'posts_per_page' => 10,
 	];
+
 	if ( $exclude_current ) {
 		$args['post__not_in'] = [ $post_id ];
 	}

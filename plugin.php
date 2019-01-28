@@ -27,10 +27,22 @@
 
 namespace CustomCodeEditor;
 
+/**
+ * @todo:: i18n
+ *
+ */
+
+/**
+ * Basefile definition for enqueing assets.
+ */
+const BASEFILE = __FILE__;
+
 require __DIR__ . '/inc/namespace.php';
+require __DIR__ . '/inc/post-types.php';
 require __DIR__ . '/inc/editor.php';
 require __DIR__ . '/inc/frontend.php';
 
 load();
+Post_Types\load();
 Editor\load();
 Frontend\load();
