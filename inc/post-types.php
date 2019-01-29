@@ -35,11 +35,12 @@ function load() {
  */
 function shared_args() {
 	return [
-		'supports'   => [ 'revisions' ],
-		'show_ui'    => true,
-		'can_export' => false,
-		'rewrite'    => false,
-		'labels'     => [
+		'supports'     => [ 'revisions' ],
+		'show_ui'      => true,
+		'can_export'   => false,
+		'rewrite'      => false,
+		'show_in_rest' => false,
+		'labels'       => [
 			'singular_name'      => _x( 'File', 'post type singular name' ),
 			'add_new'            => _x( 'Add New', 'file' ),
 			'add_new_item'       => __( 'Add New File' ),

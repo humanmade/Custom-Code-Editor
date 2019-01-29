@@ -19,7 +19,6 @@ const VERSION = '2.0.0';
  * Namespace setup & hooks.
  */
 function load() {
-	add_action( 'init', __NAMESPACE__ . '\\register_post_types' );
 	add_action( 'wp_ajax_cce_dependency_select', __NAMESPACE__ . '\\handle_dependency_ajax' );
 }
 
@@ -35,6 +34,17 @@ function get_used_languages() : array {
 	 * @param array $languages
 	 */
 	return apply_filters( 'cce_languages', [ 'css', 'js' ] );
+}
+
+/**
+ * Get available language post types.
+ *
+ * @return array
+ */
+function get_used_post_types() : array {
+	return array_map( function( $language ) {
+		return 'cce_' . $language;
+	}, get_used_languages() );
 }
 
 /**
