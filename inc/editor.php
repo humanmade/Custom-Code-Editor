@@ -19,7 +19,7 @@ function load() {
 	add_action( 'admin_enqueue_scripts', __NAMESPACE__ . '\\enqueue_styles' );
 	add_action( 'edit_form_after_title', __NAMESPACE__ . '\\output_file_name_field' );
 	add_action( 'edit_form_after_editor', __NAMESPACE__ . '\\output_editor' );
-	add_filter( 'cmb_meta_boxes', __NAMESPACE__ . '\\register_metaboxes' );
+	add_filter( 'cmb2_admin_init', __NAMESPACE__ . '\\register_file_metaboxes' );
 	add_action( 'add_meta_boxes_' . Post_Types\CSS_SLUG, __NAMESPACE__ . '\\correct_meta_boxes' );
 	add_action( 'add_meta_boxes_' . Post_Types\JS_SLUG, __NAMESPACE__ . '\\correct_meta_boxes' );
 
@@ -29,7 +29,7 @@ function load() {
 }
 
 /**
- * Output filename field.
+ * Output filename field for editing .
  *
  * Acts as the post title for custom files.
  *
@@ -124,45 +124,35 @@ function correct_meta_boxes() {
 
 /**
  * Register dependency metaboxes for file editor pages.
- *
- * @param array $boxes Custom Meta Boxes data.
- * @return array
  */
-function register_metaboxes( $boxes ) {
-	// Dependency fields.
-	$types = [ Post_Types\JS_SLUG, Post_Types\CSS_SLUG ];
-	foreach ( $types as $type ) {
-		$fields  = [
-			[
-				'id' => 'dependencies',
-				'name' => '',
-				'type' => 'cce_dependency',
-				'repeatable' => true,
-				'post_type' => $type,
-			],
-		];
-		$boxes[] = [
-			'title' => __( 'Dependencies' ),
-			'pages' => $type,
-			'fields' => $fields,
-		];
-	}
+function register_file_metaboxes() {
+	/**
+	 * Initiate the metabox
+	 */
+	$cmb = new_cmb2_box( [
+		'id'            => 'file_proprties',
+		'title'         => __( 'File Properties' ),
+		'object_types'  => CustomCodeEditor\get_used_post_types(),
+		'context'       => 'side',
+		'priority'      => 'high',
+		'show_names'    => true,
+	] );
 
-	$boxes[] = [
-		'title' => __( 'File Properties' ),
-		'pages' => $types,
-		'context' => 'side',
-		'priority' => 'high',
-		'fields' => [
-			[
-				'id' => 'global',
-				'name' => __( 'Load globally' ),
-				'type' => 'checkbox',
-			],
-		],
-	];
+	$cmb->add_field( [
+		'name' => __( 'Dependencies' ),
+		'id'   => 'dependencies',
+		'type' => 'post_autocomplete',
+		'repeatable' => true,
+		// @todo:: limit it to current post type only.
+		'post_type'   => CustomCodeEditor\get_used_post_types(),
+	] );
 
-	return $boxes;
+	$cmb->add_field( [
+		'name'        => __( 'Global Usage' ),
+		'id'          => 'global',
+		'description' => __( 'Load Globally' ),
+		'type'        => 'checkbox',
+	] );
 }
 
 /**
